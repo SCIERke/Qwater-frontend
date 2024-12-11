@@ -48,13 +48,13 @@ export default function Home() {
           },
           responseType: "blob",
         });
-  
+
         console.log("File uploaded successfully : ",response.data );
-  
+
         const imageBlob = new Blob([response.data]);
         const imageUrl = URL.createObjectURL(imageBlob);
         setProcessedImageUrl(imageUrl);
-  
+
         setPicture(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
@@ -91,6 +91,7 @@ export default function Home() {
         </div>
         <div className="flex flex-row space-x-1">
           <form>
+            <label htmlFor="myFile">Upload your image:</label>
             <input
             type="file"
             id="myFile"
@@ -117,11 +118,11 @@ export default function Home() {
               type="text"
               id={field}
               name={field}
-              value={waterData[field as keyof typeof waterData] ?? ""} 
+              value={waterData[field as keyof typeof waterData] ?? ""}
               onChange={(e) =>
                 setWaterData({
                   ...waterData,
-                  [field]: e.target.value === "" ? null : Number(e.target.value), 
+                  [field]: e.target.value === "" ? null : Number(e.target.value),
                 })
               }
               className="mt-1 block w-full max-w-md border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
@@ -150,7 +151,9 @@ export default function Home() {
             {Object.entries(predictData.input).map(([key, value]) => (
               <tr key={key} className="border-t">
                 <td className="px-4 py-2">{key.replace(/_/g, ' ')}</td>
-                <td className="px-4 py-2">{value}</td>
+                <td className="px-4 py-2">
+                {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                </td>
               </tr>
             ))}
           </tbody>
