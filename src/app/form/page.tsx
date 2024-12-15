@@ -51,7 +51,7 @@ export default function Form() {
 
   const handleSubmitData = async () => {
     try {
-      const response = await axios.post("http://localhost:8000/upload-data", waterData, {
+      const response = await axios.post("https://qwater-api.onrender.com/upload-data", waterData, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -74,7 +74,7 @@ export default function Form() {
       const formData = new FormData();
       formData.append("file", selectedFile);
 
-      const response = await axios.post("http://localhost:8000/upload-picture-tofirestore", formData, {
+      const response = await axios.post("https://qwater-api.onrender.com/upload-picture-tofirestore", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         }
@@ -87,7 +87,7 @@ export default function Form() {
 
   const fetchImageData = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/get-image-data/${selectedFile?.name}`);
+      const response = await axios.get(`https://qwater-api.onrender.com/get-image-data/${selectedFile?.name}`);
       const processedImageBase64 = response.data.images[0].processed_image_base64;
       setImageData(processedImageBase64);
       console.log(response.data);
