@@ -178,7 +178,7 @@ export default function Form() {
             <p>Your Picture is empty. Please input data.</p>
           )}
         </div>
-        <button onClick={fetchImageData} className="bg-black px-4 py-2 rounded-full text-white mt-4 hover:bg-opacity-75">click here to see the result</button>
+        <button onClick={fetchImageData} className="bg-black px-4 py-2 rounded-full text-white mt-4 hover:bg-opacity-75 focus:ring-2 focus:ring-offset-2 focus:ring-black">click here to see the result</button>
         <div className="flex flex-col w-full  p-2 border-2 border-black rounded-xl mt-4">
           <div className="open-sans-bold text-7xl">
             Result
