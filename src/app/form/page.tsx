@@ -57,6 +57,7 @@ export default function Form() {
         },
       });
       SetPredictData(response.data);
+      handleSubmitImage();
       console.log("Data submitted successfully:", response.data);
     } catch (error) {
       console.log(`Error from Fastapi can't predict data`)
@@ -65,16 +66,24 @@ export default function Form() {
 
   const handleSubmitImage = async () => {
     try {
-      const response = await axios.post("http://localhost:8000/upload-picture", selectedFile, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          }
-        });
-      console.log("Data submitted successfully:", response.data);
-    } catch (error) {
-      console.log(`Error from Fastapi can't predict data`)
+      if (!selectedFile) {
+        console.error("No file selected for upload.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      const response = await axios.post("http://localhost:8000/upload-picture-tofirestore", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        }
+      });
+      console.log("Image submitted successfully:", response.data);
+    } catch (error: any) {
+      console.error("Error from FastAPI while submitting image:", error.message || error);
     }
-  }
+}
 
   const fetchImageData = async () => {
     try {
@@ -163,7 +172,7 @@ export default function Form() {
             <img
               src={`data:image/png;base64,${imageData}`}
               alt="Processed Image"
-              className="w-[100%]"
+              className="w-[70%] sm:w-[50%]"
             />
           ) : (
             <p>Your Picture is empty. Please input data.</p>
