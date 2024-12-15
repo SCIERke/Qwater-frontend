@@ -9,6 +9,7 @@ export default function Form() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
   const [predictData,SetPredictData] = useState<any>();
+  const [imageData, setImageData] = useState(null);
 
   const [waterData, setWaterData] = useState<{
     ph: number | null;
@@ -48,12 +49,48 @@ export default function Form() {
     }
   };
 
-  const handleSubmit = () => {
-    alert(`Submit`);
+  const handleSubmitData = async () => {
+    try {
+      const response = await axios.post("http://localhost:8000/upload-data", waterData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      SetPredictData(response.data);
+      console.log("Data submitted successfully:", response.data);
+    } catch (error) {
+      console.log(`Error from Fastapi can't predict data`)
+    }
   }
 
+  const handleSubmitImage = async () => {
+    try {
+      const response = await axios.post("http://localhost:8000/upload-picture", selectedFile, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          }
+        });
+      console.log("Data submitted successfully:", response.data);
+    } catch (error) {
+      console.log(`Error from Fastapi can't predict data`)
+    }
+  }
+
+  const fetchImageData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/get-image-data/${selectedFile?.name}`);
+      const processedImageBase64 = response.data.images[0].processed_image_base64;
+      setImageData(processedImageBase64);
+      console.log(response.data);
+
+    } catch (error) {
+      console.log(`Error from Fastapi can't fetch data ${selectedFile?.name}`)
+    }
+  }
+
+
   return (
-    <div className="flex flex-wrap w-full h-screen">
+    <div className="flex flex-wrap w-full h-screen open-sans-default">
       <div className="flex flex-col w-full sm:w-[50%]  p-2 ">
         <div className="open-sans-bold text-7xl w-full flex flex-row justify-center sm:justify-start">
           <div className="mr-2">Qwater</div>
@@ -64,7 +101,10 @@ export default function Form() {
             {Object.keys(waterData).map((field) => (
               <div className="flex flex-col w-full p-1" key={field}>
                 <label htmlFor={field} className=".open-sans-default text-sm">
-                  {field.replace(/_/g, " ")}
+                  {
+                  field.replace(/_/g, " ")
+                    //เขียนหน่วย
+                  }
                 </label>
                 <input
                   type="text"
@@ -75,7 +115,11 @@ export default function Form() {
                     const value = e.target.value;
                     setWaterData({
                       ...waterData,
-                      [field]: value === "" ? null : isNaN(Number(value)) ? value : Number(value),
+                      [field]: value === ""
+                        ? null
+                        : !isNaN(parseFloat(value)) && value.trim() !== ""
+                          ? parseFloat(value)
+                          : value,
                     });
                   }}
                   className="focus:outline-none rounded-lg py-1 px-4 open-sans-default sm:w-[100%] w-[100%] border-gray-300 border focus:border-black"
@@ -107,25 +151,36 @@ export default function Form() {
           <button
             type="button"
             className="sm:w-[40%] w-full mt-4 bg-black text-white py-2 px-4 rounded hover:bg-opacity-85 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-            onClick={handleSubmit}
+            onClick={handleSubmitData}
           >
             Submit
           </button>
         </div>
       </div>
-      <div className="flex flex-col w-full sm:w-[50%] h-[50%] bg-orange-300 p-2">
-        {/* <tr  className="border-t">
-          <td className="px-4 py-2">{"d".replace(/_/g, ' ')}</td>
-          <td className="px-4 py-2">
-          {typeof 1 === 'object' ? JSON.stringify(1) : String(1)}
-          </td>
-        </tr>
-        {processedImageUrl && (
-          <div className="mt-4">
-            <div className="open-sans-default text-lg">Processed Image:</div>
-            <Image src={processedImageUrl} alt="Processed Image" width={400} height={400} />
+      <div className="flex flex-col w-full items-center sm:w-[50%] h-full p-2">
+        <div className="flex justify-center items-center rounded-lg border-2 border-black h-[40%] w-full sm:w-full sm:h-[60%]">
+          {imageData ? (
+            <img
+              src={`data:image/png;base64,${imageData}`}
+              alt="Processed Image"
+              className="w-[100%]"
+            />
+          ) : (
+            <p>Your Picture is empty. Please input data.</p>
+          )}
+        </div>
+        <button onClick={fetchImageData} className="bg-black px-4 py-2 rounded-full text-white mt-4 hover:bg-opacity-75">click here to see the result</button>
+        <div className="flex flex-col w-full  p-2 border-2 border-black rounded-xl mt-4">
+          <div className="open-sans-bold text-7xl">
+            Result
           </div>
-        )} */}
+          <div className="px-4 mt-2 text-xl sm:text-2xl">
+            { predictData ?  predictData?.prediction && predictData.prediction.length > 0 && (
+              <p>Potability: {predictData.prediction[0] *100 }%</p>
+            ) : <p>Potability: </p>}
+            Description : from the picture it has bacteria...
+          </div>
+        </div>
       </div>
     </div>
   );
